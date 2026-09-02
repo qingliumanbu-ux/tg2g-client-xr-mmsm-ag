@@ -1,0 +1,44 @@
+<template>
+  <div style="height: 100%;">
+    <xr-ef-form @ready="efFormReady"
+      :f2-do="F2_DO"
+      :f3-do="F3_DO"
+      :f4-do="F4_DO"
+      :f5-do="F5_DO">
+      <er-layout v-if="initializeFlag === 1"
+        :er-form-helper-prop="erFormHelper"
+        :config-id="'LayoutGroupFilter'"></er-layout>
+      <xr-ef-panel title="数据区"
+        padding="5px">
+        <template #customButtonSlot>
+        </template>
+        <template #contentSlot>
+          <a-tabs v-model:activeKey="tabActiveKey"
+            type="card"
+            @change="handleTabChange">
+            <a-tab-pane key="tab1"
+              tab="铸坯信息">
+              <er-grid v-if="initializeFlag === 1"
+                :er-form-helper-prop="erFormHelper"
+                :config-id="'GridView1'"
+                :toolbar-style="'both'"
+                @erGridReady="erGrid1Ready">
+              </er-grid>
+            </a-tab-pane>
+            <a-tab-pane key="tab2"
+              tab="改切实绩">
+              <er-grid v-if="initializeFlag === 1"
+                :er-form-helper-prop="erFormHelper"
+                :config-id="'gridView_m'"
+                :toolbar-style="'both'"
+                @erGridReady="erGrid1Ready">
+              </er-grid>
+            </a-tab-pane>
+          </a-tabs>
+        </template>
+      </xr-ef-panel>
+    </xr-ef-form>
+  </div>
+</template>
+<script lang="ts" src="./MMSM33BATCHS2N.ts">
+</script>

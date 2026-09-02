@@ -1,0 +1,121 @@
+/**
+ * 功能描述：鱼雷罐铁水成分查询
+ * 界面代码：MMSM11AS2N
+ * 创建人：李晓明
+ * 创建时间：2024年3月8日16点37分
+ * 修改人：
+ * 修改时间：
+ **/
+import { defineComponent, ref, reactive, nextTick } from 'vue';
+import xrEfForm from 'EFX/xrEfForm';
+import xrEfPanel from 'EFX/xrEfPanel';
+import erLayout from 'ERX/ErLayout';
+import erGrid from 'ERX/ErGrid';
+import { ER } from 'ERX/Er';
+import { EI } from 'EIX/ei';
+
+export default defineComponent({
+    name: 'MMSM11AS2N',
+    components: {
+        xrEfForm,
+        xrEfPanel,
+        erGrid,
+        erLayout
+    },
+    setup: () => {
+        const efFormInfo = ref<{ [key: string]: any }>({});
+        const erFormHelper: ER.FormHelper = new ER.FormHelper();
+        const initializeService = '';
+        const initializeFlag = ref(0);
+
+        let formPartition: string;
+        let formName: string;
+        const B02101 = ref("");
+        const B02102 = ref("");
+        //界面加载方法
+        const efFormReady = (e: any) => {
+            efFormInfo.value = e.formInfo;
+            formPartition = efFormInfo.value.formPartition;     // 分区
+            formName = efFormInfo.value.formName;               // 当前画面名
+
+            //initializePage();
+        }
+
+        const initializePage = async () => {
+            const initialResult = await erFormHelper.Initialize(formPartition, formName, '', initializeService);
+
+            if (initialResult.flag >= 0) {
+                // 画面工具类初始化成功后将画面渲染条件设置为1
+                initializeFlag.value = 1;
+
+                // 回调函数获取控件信息及设置定义事件等操作
+                nextTick(() => {
+
+                });
+            } else {
+                erFormHelper.messageError('ErFormHelper initialize faild, error msg is [' + initialResult.msg + ']!');
+            }
+        }
+
+        //F2点击事件
+        const F2_DO = async (e: any) => {
+            queryData();
+        }
+
+        const butClick = async (e: any) => {
+            if (B02101.value == "") {
+                erFormHelper.messageWarning("请输入高炉出铁信息");
+                return;
+            }
+            const inInfo = new EI.EIInfo();
+            const eiBlock=new EI.EiBlock();
+            eiBlock.pushData({DATA:B02101.value,TC_NO:"B02101"},true);
+            inInfo.addBlock(eiBlock,'table0');
+            const outInfo = await erFormHelper.callService("mmsm11dw_ins", inInfo, false, true, true);
+            if (outInfo.status === 0) {
+                erFormHelper.messageWarning("处理成功！");
+            }
+        }
+        const butClick1 = async (e: any) => {
+            if (B02102.value == "") {
+                erFormHelper.messageWarning("请输入高炉出铁信息");
+                return;
+            }
+            const inInfo = new EI.EIInfo();
+            const eiBlock=new EI.EiBlock();
+            eiBlock.pushData({DATA:B02102.value,TC_NO:"B02102"},true);
+            inInfo.addBlock(eiBlock,'table0');
+            const outInfo = await erFormHelper.callService("mmsm11dw_ins", inInfo, false, true, true);
+            if (outInfo.status === 0) {
+                erFormHelper.messageWarning("处理成功！");
+            }
+         }
+        //页面数据加载查询
+        const queryData = async () => {
+            const inInfo = new EI.EIInfo();
+            const filter_condition = erFormHelper.getAllControlValueAsEiBlock('query1', {});
+            inInfo.addBlock(filter_condition);
+            const eiBlock_page = new EI.EiBlock();
+            eiBlock_page.pushData({
+                RecordFrom: 0,
+                PageSize: 500
+            });
+            inInfo.addBlock(eiBlock_page, 'PageInfo');
+            const outInfo = await erFormHelper.callService("mmsm11a_inq", inInfo, false, true, true);
+            if (outInfo.status === 0) {
+                erFormHelper.mergeDataToLayoutOrGrid(outInfo, true, 'gridView1');
+            }
+        }
+
+        return {
+            initializeFlag,
+            erFormHelper,
+            efFormReady,
+            F2_DO,
+            B02101,
+            B02102,
+            butClick,
+            butClick1
+        }
+    }
+});
